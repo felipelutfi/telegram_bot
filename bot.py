@@ -5,6 +5,7 @@ import random
 import pandas as pd
 import requests
 import shutil
+import logging
 
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.conversationhandler import ConversationHandler
@@ -58,10 +59,35 @@ def image(update: Update, context: CallbackContext):
    else:
         print("Error:", response.status_code, response.text)
 
+def bitcoin(update: Update, context: CallbackContext):
+    symbol = 'BTCUSD'
+    api_url = 'https://api.api-ninjas.com/v1/cryptoprice?symbol={}'.format(symbol)
+    response = requests.get(api_url, headers={'X-Api-Key': 'API_KEY'})
+    if response.status_code == requests.codes.ok:
+        spaces = len(response.text)
+        bot: Bot = context.bot
+        bot.send_message(chat_id=update.effective_chat.id, text=response.text[31:36])
+    else:
+        print("Error:", response.status_code, response.text)
+
+def dolar(update: Update, context: CallbackContext):
+    api_url = 'https://api.api-ninjas.com/v1/exchangerate?pair=USD_BRL'
+    response = requests.get(api_url, headers={'X-Api-Key': 'API_KEY'})
+    if response.status_code == requests.codes.ok:
+        spaces = len(response.text)
+        bot: Bot = context.bot
+        bot.send_message(chat_id=update.effective_chat.id, text=response.text[46:50])
+    else:
+        print("Error:", response.status_code, response.text)
+
 dispatcher.add_handler(CommandHandler("start", start))
 
 dispatcher.add_handler(CommandHandler("facts", facts))
 
 dispatcher.add_handler(CommandHandler("image", image))
+
+dispatcher.add_handler(CommandHandler("bitcoin", bitcoin))
+
+dispatcher.add_handler(CommandHandler("dolar", dolar))
 
 updater.start_polling()
